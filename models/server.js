@@ -1,31 +1,31 @@
 // Servidor de Express
 const express  = require('express');
 const http     = require('http');
-const path     = require('path');
-const { dbConnection } = require('../database/config');
+const { dbConnection, syncronizeDB } = require('../database/config');
 const publicRoutes = require('../routes/public');
-// const cors = require('cors');
+const cors = require('cors');
+const logger = require('morgan');
 
 class Server {
 
     constructor() {
-
         this.app  = express();
         this.port = process.env.PORT;
 
         // Connect DB
         dbConnection();
+        syncronizeDB();
 
         // Http server
         this.server = http.createServer( this.app );
     }
 
     middlewares() {
-        // Display the public directory
-        // this.app.use( '/uploads', express.static( path.resolve( __dirname, '../uploads' ) ) );
+        // Enable cors
+        this.app.use( cors() );
 
-        // TO DO: CORS
-        // this.app.use( cors() );
+        // Print petitions in console
+        this.app.use( logger("dev") );
 
         // Parse body
         this.app.use( express.json() );
@@ -38,7 +38,6 @@ class Server {
     }
 
     execute() {
-
         // Initialize Middlewares
         this.middlewares();
 
